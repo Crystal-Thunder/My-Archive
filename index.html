@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library System</h1>
+    <form id="addBookForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" required>
+        <button type="submit">Add Book</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+            </tr>
+        </thead>
+        <tbody id="bookList">
+        </tbody>
+    </table>
+    <script>
+        const apiUrl = 'http://127.0.0.1:8000';
+
+        async function fetchBooks() {
+            const response = await fetch(`${apiUrl}/books`);
+            const books = await response.json();
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+            books.forEach(book => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${book.id}</td><td>${book.title}</td><td>${book.author}</td>`;
+                bookList.appendChild(row);
+            });
+        }
+
+        document.getElementById('addBookForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+
+            await fetch(`${apiUrl}/books`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, author })
+            });
+
+            document.getElementById('addBookForm').reset();
+            fetchBooks();
+        });
+
+        fetchBooks();
+    </script>
+</body>
+</html>
